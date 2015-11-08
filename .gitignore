@@ -1,4 +1,4 @@
 *.json
 vendor/
-gh
-gh-login
+alfred-github-jump
+sqlite.db

@@ -48,9 +48,9 @@
 				<key>queuemode</key>
 				<integer>1</integer>
 				<key>runningsubtext</key>
-				<string>Searching github</string>
+				<string>Loading github repositories</string>
 				<key>script</key>
-				<string>./gh "{query}"</string>
+				<string>./alfred-github-jump repos "{query}"</string>
 				<key>title</key>
 				<string>Jump to a Github Repository</string>
 				<key>type</key>
