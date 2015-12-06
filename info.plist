@@ -8,11 +8,57 @@
 	<string>Tools</string>
 	<key>connections</key>
 	<dict>
+		<key>0A14AB01-D5B4-4AA4-9894-48EE61682A69</key>
+		<array/>
+		<key>550D97C0-A2B2-4A54-A472-F2AA760D121C</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>CF16946F-5549-4D50-A0FB-EFEE63A28F89</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+			</dict>
+		</array>
+		<key>84DAF9C0-AAF6-41D1-BE08-086FB0825C01</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>E6592B53-3D1B-4A93-A934-2F5EF9E857D1</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+			</dict>
+		</array>
+		<key>CF16946F-5549-4D50-A0FB-EFEE63A28F89</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>6A3A4092-8D62-4F7D-9684-8FDF7BCDA6B3</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+			</dict>
+		</array>
+		<key>E6592B53-3D1B-4A93-A934-2F5EF9E857D1</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>6A3A4092-8D62-4F7D-9684-8FDF7BCDA6B3</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+			</dict>
+		</array>
 		<key>EC294EDC-565E-48AE-BF28-19E2B1C649C0</key>
 		<array>
 			<dict>
 				<key>destinationuid</key>
-				<string>525EEAA1-C3AE-4166-9209-72FFA524F402</string>
+				<string>0A14AB01-D5B4-4AA4-9894-48EE61682A69</string>
 				<key>modifiers</key>
 				<integer>0</integer>
 				<key>modifiersubtext</key>
@@ -30,6 +76,23 @@
 	<string>Github Jump</string>
 	<key>objects</key>
 	<array>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>plusspaces</key>
+				<false/>
+				<key>url</key>
+				<string>{query}</string>
+				<key>utf8</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.openurl</string>
+			<key>uid</key>
+			<string>0A14AB01-D5B4-4AA4-9894-48EE61682A69</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
 		<dict>
 			<key>config</key>
 			<dict>
@@ -68,17 +131,105 @@
 		<dict>
 			<key>config</key>
 			<dict>
-				<key>plusspaces</key>
+				<key>lastpathcomponent</key>
 				<false/>
-				<key>url</key>
-				<string>{query}</string>
-				<key>utf8</key>
+				<key>onlyshowifquerypopulated</key>
 				<true/>
+				<key>output</key>
+				<integer>0</integer>
+				<key>removeextension</key>
+				<false/>
+				<key>sticky</key>
+				<false/>
+				<key>text</key>
+				<string>{query}</string>
+				<key>title</key>
+				<string>Github Jump</string>
 			</dict>
 			<key>type</key>
-			<string>alfred.workflow.action.openurl</string>
+			<string>alfred.workflow.output.notification</string>
 			<key>uid</key>
-			<string>525EEAA1-C3AE-4166-9209-72FFA524F402</string>
+			<string>6A3A4092-8D62-4F7D-9684-8FDF7BCDA6B3</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>concurrently</key>
+				<false/>
+				<key>escaping</key>
+				<integer>102</integer>
+				<key>script</key>
+				<string>./alfred-github-jump update</string>
+				<key>type</key>
+				<integer>0</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>CF16946F-5549-4D50-A0FB-EFEE63A28F89</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>argumenttype</key>
+				<integer>2</integer>
+				<key>keyword</key>
+				<string>gh &gt; update</string>
+				<key>subtext</key>
+				<string>Github Jump</string>
+				<key>text</key>
+				<string>Update Github Repositories</string>
+				<key>withspace</key>
+				<false/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.keyword</string>
+			<key>uid</key>
+			<string>550D97C0-A2B2-4A54-A472-F2AA760D121C</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>argumenttype</key>
+				<integer>2</integer>
+				<key>keyword</key>
+				<string>gh &gt; login</string>
+				<key>subtext</key>
+				<string>Github Jump</string>
+				<key>text</key>
+				<string>Login to Github</string>
+				<key>withspace</key>
+				<false/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.keyword</string>
+			<key>uid</key>
+			<string>84DAF9C0-AAF6-41D1-BE08-086FB0825C01</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>concurrently</key>
+				<false/>
+				<key>escaping</key>
+				<integer>102</integer>
+				<key>script</key>
+				<string>./alfred-github-jump login</string>
+				<key>type</key>
+				<integer>0</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>E6592B53-3D1B-4A93-A934-2F5EF9E857D1</string>
 			<key>version</key>
 			<integer>0</integer>
 		</dict>
@@ -87,10 +238,35 @@
 	<string></string>
 	<key>uidata</key>
 	<dict>
-		<key>525EEAA1-C3AE-4166-9209-72FFA524F402</key>
+		<key>0A14AB01-D5B4-4AA4-9894-48EE61682A69</key>
 		<dict>
 			<key>ypos</key>
 			<real>180</real>
+		</dict>
+		<key>550D97C0-A2B2-4A54-A472-F2AA760D121C</key>
+		<dict>
+			<key>ypos</key>
+			<real>300</real>
+		</dict>
+		<key>6A3A4092-8D62-4F7D-9684-8FDF7BCDA6B3</key>
+		<dict>
+			<key>ypos</key>
+			<real>180</real>
+		</dict>
+		<key>84DAF9C0-AAF6-41D1-BE08-086FB0825C01</key>
+		<dict>
+			<key>ypos</key>
+			<real>420</real>
+		</dict>
+		<key>CF16946F-5549-4D50-A0FB-EFEE63A28F89</key>
+		<dict>
+			<key>ypos</key>
+			<real>300</real>
+		</dict>
+		<key>E6592B53-3D1B-4A93-A934-2F5EF9E857D1</key>
+		<dict>
+			<key>ypos</key>
+			<real>420</real>
 		</dict>
 		<key>EC294EDC-565E-48AE-BF28-19E2B1C649C0</key>
 		<dict>

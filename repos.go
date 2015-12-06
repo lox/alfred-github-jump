@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
+	"time"
 
 	"github.com/google/go-github/github"
 	"github.com/pascalw/go-alfred"
@@ -11,6 +13,11 @@ import (
 
 type Repository struct {
 	URL, Name, User, Description string
+	LastUpdated                  time.Time
+}
+
+func (r Repository) FullName() string {
+	return fmt.Sprintf("%s/%s", r.User, r.Name)
 }
 
 func reposCommand(queryTerms []string) {
@@ -35,11 +42,12 @@ func reposCommand(queryTerms []string) {
 	}
 
 	for _, repo := range repos {
-		if alfred.MatchesTerms(queryTerms, repo.Name) {
+		log.Printf("Comparing %s with %s", queryTerms, repo.FullName())
+		if alfred.MatchesTerms(queryTerms, repo.FullName()) {
 			response.AddItem(&alfred.AlfredResponseItem{
 				Valid:    true,
 				Uid:      repo.URL,
-				Title:    fmt.Sprintf("%s/%s", repo.User, repo.Name),
+				Title:    repo.FullName(),
 				Subtitle: repo.Description,
 				Arg:      repo.URL,
 			})
@@ -53,7 +61,7 @@ func ListRepositories() ([]Repository, error) {
 		return nil, err
 	}
 
-	rows, err := db.Query("SELECT id, url,description, name, user FROM repository")
+	rows, err := db.Query("SELECT id, url,description, name,user,updated_at FROM repository")
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +70,8 @@ func ListRepositories() ([]Repository, error) {
 
 	for rows.Next() {
 		var id, url, descr, name, user string
-		err = rows.Scan(&id, &url, &descr, &name, &user)
+		var updated time.Time
+		err = rows.Scan(&id, &url, &descr, &name, &user, &updated)
 		if err != nil {
 			return nil, err
 		}
@@ -72,6 +81,7 @@ func ListRepositories() ([]Repository, error) {
 			Name:        name,
 			User:        user,
 			Description: descr,
+			LastUpdated: updated,
 		})
 	}
 
@@ -85,12 +95,19 @@ func nilableString(s *string) string {
 	return *s
 }
 
+func githubTime(t *github.Timestamp) *time.Time {
+	if t == nil {
+		return nil
+	}
+	return &t.Time
+}
+
 func UpdateRepositories(token *oauth2.Token) (int64, error) {
 	tc := OAuthConf.Client(oauth2.NoContext, token)
 	client := github.NewClient(tc)
 
 	opt := &github.RepositoryListOptions{
-		ListOptions: github.ListOptions{PerPage: 10},
+		ListOptions: github.ListOptions{PerPage: 45},
 		Sort:        "pushed",
 	}
 
@@ -104,6 +121,7 @@ func UpdateRepositories(token *oauth2.Token) (int64, error) {
 		return 0, err
 	}
 
+	found := map[string]struct{}{}
 	counter := int64(0)
 	for {
 		result, resp, err := client.Repositories.List("", opt)
@@ -113,6 +131,7 @@ func UpdateRepositories(token *oauth2.Token) (int64, error) {
 		for _, repo := range result {
 			log.Printf("Updating %s/%s", *repo.Owner.Login, *repo.Name)
 
+			name := fmt.Sprintf("%s/%s", *repo.Owner.Login, *repo.Name)
 			res, err := db.Exec(
 				`INSERT OR REPLACE INTO repository (
 					id,
@@ -123,18 +142,19 @@ func UpdateRepositories(token *oauth2.Token) (int64, error) {
 					updated_at,
 					created_at
 				) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-				fmt.Sprintf("%s/%s", *repo.Owner.Login, *repo.Name),
+				name,
 				nilableString(repo.HTMLURL),
 				nilableString(repo.Description),
 				*repo.Name,
 				*repo.Owner.Login,
-				(*repo.PushedAt).Time,
-				(*repo.UpdatedAt).Time,
-				(*repo.CreatedAt).Time,
+				githubTime(repo.PushedAt),
+				githubTime(repo.UpdatedAt),
+				githubTime(repo.CreatedAt),
 			)
 			if err != nil {
 				return counter, err
 			}
+			found[name] = struct{}{}
 			rows, _ := res.RowsAffected()
 			counter += rows
 		}
@@ -144,28 +164,42 @@ func UpdateRepositories(token *oauth2.Token) (int64, error) {
 		opt.ListOptions.Page = resp.NextPage
 	}
 
+	existing, err := ListRepositories()
+	if err != nil {
+		return 0, err
+	}
+
+	// purge repos that don't exit any more
+	for _, repo := range existing {
+		if _, exists := found[repo.FullName()]; !exists {
+			log.Printf("Repo %s doesn't exist, deleting", repo.FullName())
+
+			_, err := db.Exec(
+				`DELETE FROM repository WHERE id=?`,
+				repo.FullName(),
+			)
+			if err != nil {
+				return 0, err
+			}
+
+		}
+	}
+
 	return counter, tx.Commit()
 }
 
 func updateCommand() {
-	response := alfred.NewResponse()
-	defer response.Print()
-
 	token, err := loadToken()
 	if err != nil {
-		response.AddItem(alfredError(err))
-		return
+		fmt.Println("Error", err)
+		os.Exit(1)
 	}
 
 	n, err := UpdateRepositories(token)
 	if err != nil {
-		response.AddItem(alfredError(err))
-		return
+		fmt.Println("Error", err)
+		os.Exit(1)
 	}
 
-	response.AddItem(&alfred.AlfredResponseItem{
-		Valid: false,
-		Uid:   "updated",
-		Title: fmt.Sprintf("Updated %d repositories from github", n),
-	})
+	fmt.Printf("Updated %d repositories from github", n)
 }

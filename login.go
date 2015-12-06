@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	"github.com/google/go-github/github"
+	"github.com/skratchdot/open-golang/open"
 	"golang.org/x/oauth2"
 )
 
@@ -71,7 +72,8 @@ func loginCommand() error {
 	http.HandleFunc("/login", handleGitHubLogin)
 	http.HandleFunc("/github_oauth_cb", handleGitHubCallback)
 
-	log.Printf("Started running on %s\n", ServerAddress)
+	log.Printf("Opening %s in default browser\n", ServerAddress)
+	open.Run(ServerAddress)
 
 	loginComplete.Lock()
 	go http.Serve(ln, nil)

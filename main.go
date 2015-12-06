@@ -1,8 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
+	"os/exec"
 
 	"github.com/pascalw/go-alfred"
 	"gopkg.in/alecthomas/kingpin.v2"
@@ -21,13 +24,18 @@ func main() {
 
 	if *debug == false {
 		log.SetOutput(ioutil.Discard)
+	} else {
+		log.SetOutput(os.Stderr)
 	}
 
 	switch cmd {
 	case repos.FullCommand():
 		reposCommand(*reposFilters)
 	case login.FullCommand():
-		loginCommand()
+		if err := loginCommand(); err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
 	case update.FullCommand():
 		updateCommand()
 	}
@@ -41,4 +49,13 @@ func alfredError(err error) *alfred.AlfredResponseItem {
 		Subtitle: err.Error(),
 		Icon:     "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/AlertStopIcon.icns",
 	}
+}
+
+func backgroundUpdate() error {
+	cmd := exec.Command(os.Args[0], "update")
+	if err := cmd.Start(); err != nil {
+		return err
+	}
+	log.Printf("Background pid %#v", cmd.Process.Pid)
+	return nil
 }
