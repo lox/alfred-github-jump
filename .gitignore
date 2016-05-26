@@ -2,3 +2,4 @@
 vendor/
 alfred-github-jump
 sqlite.db
+*.alfredworkflow
