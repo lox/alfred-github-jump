@@ -8,6 +8,7 @@ import (
 
 	"github.com/google/go-github/github"
 	"github.com/pascalw/go-alfred"
+
 	"golang.org/x/oauth2"
 )
 
@@ -102,13 +103,66 @@ func githubTime(t *github.Timestamp) *time.Time {
 	return &t.Time
 }
 
+func listUserRepositories(client *github.Client) ([]github.Repository, error) {
+	opt := &github.RepositoryListOptions{
+		ListOptions: github.ListOptions{PerPage: 45},
+		Sort:        "pushed",
+	}
+
+	repos := []github.Repository{}
+
+	for {
+		result, resp, err := client.Repositories.List("", opt)
+		if err != nil {
+			return repos, err
+		}
+		repos = append(repos, result...)
+		if resp.NextPage == 0 {
+			break
+		}
+		opt.ListOptions.Page = resp.NextPage
+	}
+
+	return repos, nil
+}
+
+func listStarredRepositories(client *github.Client) ([]github.Repository, error) {
+	opt := &github.ActivityListStarredOptions{
+		ListOptions: github.ListOptions{PerPage: 45},
+		Sort:        "pushed",
+	}
+
+	repos := []github.Repository{}
+
+	for {
+		result, resp, err := client.Activity.ListStarred("", opt)
+		if err != nil {
+			return repos, err
+		}
+		for _, starred := range result {
+			repos = append(repos, *starred.Repository)
+		}
+		if resp.NextPage == 0 {
+			break
+		}
+		opt.ListOptions.Page = resp.NextPage
+	}
+
+	return repos, nil
+}
+
 func UpdateRepositories(token *oauth2.Token) (int64, error) {
 	tc := OAuthConf.Client(oauth2.NoContext, token)
 	client := github.NewClient(tc)
 
-	opt := &github.RepositoryListOptions{
-		ListOptions: github.ListOptions{PerPage: 45},
-		Sort:        "pushed",
+	userRepos, err := listUserRepositories(client)
+	if err != nil {
+		return 0, err
+	}
+
+	starredRepos, err := listStarredRepositories(client)
+	if err != nil {
+		return 0, err
 	}
 
 	db, err := OpenDB()
@@ -123,17 +177,13 @@ func UpdateRepositories(token *oauth2.Token) (int64, error) {
 
 	found := map[string]struct{}{}
 	counter := int64(0)
-	for {
-		result, resp, err := client.Repositories.List("", opt)
-		if err != nil {
-			return counter, err
-		}
-		for _, repo := range result {
-			log.Printf("Updating %s/%s", *repo.Owner.Login, *repo.Name)
 
-			name := fmt.Sprintf("%s/%s", *repo.Owner.Login, *repo.Name)
-			res, err := db.Exec(
-				`INSERT OR REPLACE INTO repository (
+	for _, repo := range append(userRepos, starredRepos...) {
+		log.Printf("Updating %s/%s", *repo.Owner.Login, *repo.Name)
+
+		name := fmt.Sprintf("%s/%s", *repo.Owner.Login, *repo.Name)
+		res, err := db.Exec(
+			`INSERT OR REPLACE INTO repository (
 					id,
 					url,
 					description,
@@ -142,26 +192,21 @@ func UpdateRepositories(token *oauth2.Token) (int64, error) {
 					updated_at,
 					created_at
 				) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-				name,
-				nilableString(repo.HTMLURL),
-				nilableString(repo.Description),
-				*repo.Name,
-				*repo.Owner.Login,
-				githubTime(repo.PushedAt),
-				githubTime(repo.UpdatedAt),
-				githubTime(repo.CreatedAt),
-			)
-			if err != nil {
-				return counter, err
-			}
-			found[name] = struct{}{}
-			rows, _ := res.RowsAffected()
-			counter += rows
+			name,
+			nilableString(repo.HTMLURL),
+			nilableString(repo.Description),
+			*repo.Name,
+			*repo.Owner.Login,
+			githubTime(repo.PushedAt),
+			githubTime(repo.UpdatedAt),
+			githubTime(repo.CreatedAt),
+		)
+		if err != nil {
+			return counter, err
 		}
-		if resp.NextPage == 0 {
-			break
-		}
-		opt.ListOptions.Page = resp.NextPage
+		found[name] = struct{}{}
+		rows, _ := res.RowsAffected()
+		counter += rows
 	}
 
 	existing, err := ListRepositories()
