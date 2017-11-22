@@ -1,0 +1,52 @@
+hash: b7f8920bff6b35b40d5aff6cc129d41ee6f377c951f3bad2a847211497926e2c
+updated: 2017-11-22T15:25:13.539223+11:00
+imports:
+- name: github.com/alecthomas/template
+  version: a0175ee3bccc567396460bf5acd36800cb10c49c
+  subpackages:
+  - parse
+- name: github.com/alecthomas/units
+  version: 2efee857e7cfd4f3d0138cc3cbb1b4966962b93a
+- name: github.com/golang/protobuf
+  version: 1e59b77b52bf8e4b449a57e6f79f21226d571845
+  subpackages:
+  - proto
+- name: github.com/google/go-github
+  version: 471e67c93cdd36a5f7c9bba5d6d11665ba12147d
+  subpackages:
+  - github
+- name: github.com/google/go-querystring
+  version: 53e6ce116135b80d037921a7fdd5138cf32d7a8a
+  subpackages:
+  - query
+- name: github.com/mattn/go-sqlite3
+  version: d5ffb5c0cca8778699a929b236766f4a7af674e8
+- name: github.com/pascalw/go-alfred
+  version: 16aeb807166cb79fe1bcf72995e14cbe882b3a9b
+- name: github.com/skratchdot/open-golang
+  version: 75fb7ed4208cf72d323d7d02fd1a5964a7a9073c
+  subpackages:
+  - open
+- name: golang.org/x/net
+  version: 02ac38e2528ff4adea90f184d71a3faa04b4b1b0
+  subpackages:
+  - context
+  - context/ctxhttp
+- name: golang.org/x/oauth2
+  version: f95fa95eaa936d9d87489b15d1d18b97c1ba9c28
+  subpackages:
+  - github
+  - internal
+- name: google.golang.org/appengine
+  version: 9d8544a6b2c7df9cff240fcf92d7b2f59bc13416
+  subpackages:
+  - internal
+  - internal/base
+  - internal/datastore
+  - internal/log
+  - internal/remote_api
+  - internal/urlfetch
+  - urlfetch
+- name: gopkg.in/alecthomas/kingpin.v2
+  version: 1087e65c9441605df944fb12c33f0fe7072d18ca
+testImports: []

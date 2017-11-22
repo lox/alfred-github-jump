@@ -1,11 +1,13 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net"
 	"net/http"
 	"sync"
+	"time"
 
 	"github.com/google/go-github/github"
 	"github.com/skratchdot/open-golang/open"
@@ -51,7 +53,11 @@ func handleGitHubCallback(w http.ResponseWriter, r *http.Request) {
 
 	oauthClient := OAuthConf.Client(oauth2.NoContext, token)
 	client := github.NewClient(oauthClient)
-	user, _, err := client.Users.Get("")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+
+	user, _, err := client.Users.Get(ctx, "")
 	if err != nil {
 		log.Printf("client.Users.Get() failed with %q", err)
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)

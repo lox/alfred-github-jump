@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -111,12 +112,19 @@ func listUserRepositories(client *github.Client) ([]github.Repository, error) {
 
 	repos := []github.Repository{}
 
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+
 	for {
-		result, resp, err := client.Repositories.List("", opt)
+		result, resp, err := client.Repositories.List(ctx, "", opt)
 		if err != nil {
 			return repos, err
 		}
-		repos = append(repos, result...)
+
+		for _, r := range result {
+			repos = append(repos, *r)
+		}
+
 		if resp.NextPage == 0 {
 			break
 		}
@@ -135,7 +143,10 @@ func listStarredRepositories(client *github.Client) ([]github.Repository, error)
 	repos := []github.Repository{}
 
 	for {
-		result, resp, err := client.Activity.ListStarred("", opt)
+		ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+		defer cancel()
+
+		result, resp, err := client.Activity.ListStarred(ctx, "", opt)
 		if err != nil {
 			return repos, err
 		}
