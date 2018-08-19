@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -103,16 +104,17 @@ func githubTime(t *github.Timestamp) *time.Time {
 	return &t.Time
 }
 
-func listUserRepositories(client *github.Client) ([]github.Repository, error) {
+func listUserRepositories(client *github.Client) ([]*github.Repository, error) {
 	opt := &github.RepositoryListOptions{
 		ListOptions: github.ListOptions{PerPage: 45},
 		Sort:        "pushed",
 	}
 
-	repos := []github.Repository{}
+	repos := []*github.Repository{}
 
 	for {
-		result, resp, err := client.Repositories.List("", opt)
+		ctx := context.Background()
+		result, resp, err := client.Repositories.List(ctx, "", opt)
 		if err != nil {
 			return repos, err
 		}
@@ -126,21 +128,22 @@ func listUserRepositories(client *github.Client) ([]github.Repository, error) {
 	return repos, nil
 }
 
-func listStarredRepositories(client *github.Client) ([]github.Repository, error) {
+func listStarredRepositories(client *github.Client) ([]*github.Repository, error) {
 	opt := &github.ActivityListStarredOptions{
 		ListOptions: github.ListOptions{PerPage: 45},
 		Sort:        "pushed",
 	}
 
-	repos := []github.Repository{}
+	repos := []*github.Repository{}
 
 	for {
-		result, resp, err := client.Activity.ListStarred("", opt)
+		ctx := context.Background()
+		result, resp, err := client.Activity.ListStarred(ctx, "", opt)
 		if err != nil {
 			return repos, err
 		}
 		for _, starred := range result {
-			repos = append(repos, *starred.Repository)
+			repos = append(repos, starred.Repository)
 		}
 		if resp.NextPage == 0 {
 			break

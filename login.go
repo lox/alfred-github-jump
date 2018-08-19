@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net"
@@ -49,9 +50,10 @@ func handleGitHubCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	ctx := context.Background()
 	oauthClient := OAuthConf.Client(oauth2.NoContext, token)
 	client := github.NewClient(oauthClient)
-	user, _, err := client.Users.Get("")
+	user, _, err := client.Users.Get(ctx, "")
 	if err != nil {
 		log.Printf("client.Users.Get() failed with %q", err)
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
