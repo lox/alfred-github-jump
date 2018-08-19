@@ -2,7 +2,7 @@ SOURCES := $(wildcard *.go)
 BIN := alfred-github-jump
 FILES := $(BIN) info.plist icon.png
 
-build: Github\ Jump.alfredworkflow
+build: alfred-github-jump
 
 Github\ Jump.alfredworkflow: $(FILES)
 	zip -j "$@" $^
