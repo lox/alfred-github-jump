@@ -18,3 +18,4 @@ cd "$GOPATH/src/github.com/lox/alfred-github-jump"
 # Build it and link it into Alfred
 make build
 ln -s "$PWD" "$HOME/Library/Application Support/Alfred 3/Alfred.alfredpreferences/workflows/alfred-github-jump"
+```
