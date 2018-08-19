@@ -7,7 +7,7 @@ A [workflow for Alfred 3](https://www.alfredapp.com/help/workflows/) for indexin
 
 ## Development
 
-```
+```bash
 # Make sure the workflow dir exists
 mkdir -p "$HOME/Library/Application Support/Alfred 3/Alfred.alfredpreferences/workflows"
 
