@@ -9,6 +9,7 @@ import (
 
 	"github.com/google/go-github/github"
 	"github.com/pascalw/go-alfred"
+	"github.com/sahilm/fuzzy"
 
 	"golang.org/x/oauth2"
 )
@@ -22,9 +23,7 @@ func (r Repository) FullName() string {
 	return fmt.Sprintf("%s/%s", r.User, r.Name)
 }
 
-func reposCommand(queryTerms []string) {
-	alfred.InitTerms(queryTerms)
-
+func reposCommand(fuzzyFilter string) {
 	response := alfred.NewResponse()
 	defer response.Print()
 
@@ -43,17 +42,20 @@ func reposCommand(queryTerms []string) {
 		return
 	}
 
+	var names []string
+
 	for _, repo := range repos {
-		log.Printf("Comparing %s with %s", queryTerms, repo.FullName())
-		if alfred.MatchesTerms(queryTerms, repo.FullName()) {
-			response.AddItem(&alfred.AlfredResponseItem{
-				Valid:    true,
-				Uid:      repo.URL,
-				Title:    repo.FullName(),
-				Subtitle: repo.Description,
-				Arg:      repo.URL,
-			})
-		}
+		names = append(names, repo.FullName())
+	}
+
+	for _, match := range fuzzy.Find(fuzzyFilter, names) {
+		response.AddItem(&alfred.AlfredResponseItem{
+			Valid:    true,
+			Uid:      repos[match.Index].URL,
+			Title:    repos[match.Index].FullName(),
+			Subtitle: repos[match.Index].Description,
+			Arg:      repos[match.Index].URL,
+		})
 	}
 }
 
