@@ -61,6 +61,8 @@ func handleGitHubCallback(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Printf("Logged in as GitHub user: %s\n", *user.Login)
+	fmt.Fprintf(w, "Successfully authenticated! You can close this tab.")
+
 	loginComplete.Unlock()
 }
 
