@@ -13,11 +13,11 @@ import (
 
 func main() {
 	var (
-		debug        = kingpin.Flag("debug", "Show debugging output").Bool()
-		repos        = kingpin.Command("repos", "Show repositories from cache")
-		reposFilters = repos.Arg("filter", "Filter strings").Strings()
-		login        = kingpin.Command("login", "Login to github via oauth")
-		update       = kingpin.Command("update", "Updates repositories from Github")
+		debug       = kingpin.Flag("debug", "Show debugging output").Bool()
+		repos       = kingpin.Command("repos", "Show repositories from cache")
+		reposFilter = repos.Arg("filter", "Fuzzy match the full repository name").String()
+		login       = kingpin.Command("login", "Login to github via oauth")
+		update      = kingpin.Command("update", "Updates repositories from Github")
 	)
 
 	cmd := kingpin.Parse()
@@ -30,7 +30,7 @@ func main() {
 
 	switch cmd {
 	case repos.FullCommand():
-		reposCommand(*reposFilters)
+		reposCommand(*reposFilter)
 	case login.FullCommand():
 		if err := loginCommand(); err != nil {
 			fmt.Println(err)
